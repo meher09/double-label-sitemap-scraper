@@ -1,0 +1,30 @@
+import requests
+from bs4 import BeautifulSoup
+
+def scrape_sitemap(sitemap_url):
+    try:
+        response = requests.get(sitemap_url)
+        soup = BeautifulSoup(response.content, 'xml')
+        urls = [loc.text for loc in soup.find_all('loc') if loc.parent.name == 'url']
+        return urls
+    except Exception as e:
+        print(f"Error scraping {sitemap_url}: {e}")
+        return []
+
+def save_urls_to_file(urls, filename="urls.txt"):
+    with open(filename, 'a') as file:
+        for url in urls:
+            file.write(url + '\n')
+
+def main():
+    while True:
+        sitemap_url = input("Enter sitemap URL (or 'q' to quit): ")
+        if sitemap_url.lower() == 'q':
+            break
+        urls = scrape_sitemap(sitemap_url)
+        if urls:
+            save_urls_to_file(urls)
+            print(f"Saved {len(urls)} URLs from {sitemap_url} to urls.txt")
+
+if __name__ == "__main__":
+    main()
